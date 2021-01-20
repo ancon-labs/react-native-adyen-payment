@@ -372,6 +372,7 @@ class AdyenPayment: RCTEventEmitter {
                 }
             }
         case let .failure(error):
+            sendFailure(code: "", message: error.localizedDescription)
             currentComponent?.stopLoading(withSuccess: false) { [weak self] in
                 self?.presentAlert(with: error)
             }

@@ -10,13 +10,13 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/mkharibalaji/react-native-adyen-payment"
   s.license      = "MIT"
   s.authors      = { "M K Hari Balaji" => "mk_hari_balaji2003@yahoo.co.in" }
-  s.platform     = :ios, "11.0"
+  s.platform     = :ios, "10.0"
   s.source       = { :git => "https://github.com/mkharibalaji/react-native-adyen-payment.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,swift}"
   s.requires_arc = true
 
   s.dependency "React"
-	s.dependency "Adyen","3.6.0"
+  s.dependency "Adyen","3.6.0"
 end
 

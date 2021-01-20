@@ -451,6 +451,7 @@ class AdyenPayment: RCTEventEmitter {
     private func presentAlert(with error: Error, retryHandler: (() -> Void)? = nil) {
         let alertController = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        currentComponent?.viewController.dismiss(animated: true, completion: nil)
         (UIApplication.shared.delegate?.window??.rootViewController)!.present(alertController, animated: true)
     }
     

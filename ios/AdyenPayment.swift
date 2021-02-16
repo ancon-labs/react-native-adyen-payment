@@ -2,6 +2,9 @@ import Foundation
 import Adyen
 import PassKit
 
+internal struct ModuleOptions {
+    var showFailureAlert : Bool = true
+}
 
 @objc(AdyenPayment)
 class AdyenPayment: RCTEventEmitter {
@@ -17,6 +20,7 @@ class AdyenPayment: RCTEventEmitter {
     var emitEvent : Bool = false
     
     lazy var apiClient = APIClient()
+    lazy var moduleOptions = ModuleOptions()
     
     override static func requiresMainQueueSetup() -> Bool {
         return true
@@ -70,6 +74,12 @@ class AdyenPayment: RCTEventEmitter {
            AppServiceConfigData.app_url_headers = appServiceConfigData["additional_http_headers"] as! [String:String]
         }
         AppServiceConfigData.environment = appServiceConfigData["environment"] as! String
+    }
+    
+    func setModuleOptions(_ options : NSDictionary){
+        if (options["showFailureAlert"] != nil){
+            self.moduleOptions.showFailureAlert = options["showFailureAlert"] as! Bool
+        }
     }
     
     func storedPaymentMethod<T: StoredPaymentMethod>(ofType type: T.Type) -> T? {
@@ -183,8 +193,11 @@ class AdyenPayment: RCTEventEmitter {
         }
     }
     
-    @objc func initialize(_ appServiceConfigData : NSDictionary){
+    @objc func initialize(_ appServiceConfigData : NSDictionary, options: NSDictionary?){
         self.setAppServiceConfigDetails(appServiceConfigData)
+        if (options != nil){
+            self.setModuleOptions(options!)
+        }
     }
     
     @objc func startPaymentPromise(_ component: NSString,componentData : NSDictionary,paymentDetails : NSDictionary,resolve: @escaping RCTPromiseResolveBlock,reject: @escaping RCTPromiseRejectBlock){
@@ -369,11 +382,14 @@ class AdyenPayment: RCTEventEmitter {
                             (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true) {}
                         }   
                     }
+                }else{
+                    sendFailure(code: "", message: "Unknown error")
                 }
             }
         case let .failure(error):
             sendFailure(code: "", message: error.localizedDescription)
             currentComponent?.stopLoading(withSuccess: false) { [weak self] in
+                self?.currentComponent?.viewController.dismiss(animated: true, completion: nil)
                 self?.presentAlert(with: error)
             }
         }
@@ -450,13 +466,18 @@ class AdyenPayment: RCTEventEmitter {
     }
     
     private func presentAlert(with error: Error, retryHandler: (() -> Void)? = nil) {
+        guard self.moduleOptions.showFailureAlert == true else {
+            return
+        }
         let alertController = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        currentComponent?.viewController.dismiss(animated: true, completion: nil)
         (UIApplication.shared.delegate?.window??.rootViewController)!.present(alertController, animated: true)
     }
     
     private func presentAlert(withTitle title: String,message:String?=nil) {
+        guard self.moduleOptions.showFailureAlert == true else {
+            return
+        }
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         (UIApplication.shared.delegate?.window??.rootViewController)!.present(alertController, animated: true)

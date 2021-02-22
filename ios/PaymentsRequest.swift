@@ -119,7 +119,7 @@ internal struct PaymentsResponse: Response {
         self.type = try container.decodeIfPresent(String.self, forKey: .type)
         self.errorCode = try container.decodeIfPresent(String.self, forKey: .errorCode)
         self.errorMessage = try container.decodeIfPresent(String.self, forKey: .errorMessage)
-        self.message = try container.decode(String.self, forKey: .message)
+        self.message = try container.decodeIfPresent(String.self, forKey: .message)
         self.error_code = self.decode_error_code(self.refusalReasonCode)
         if(self.type != nil){
             self.validationError = ValidationError(type:self.type,errorCode:self.errorCode,errorMessage:self.errorMessage)

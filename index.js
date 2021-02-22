@@ -21,18 +21,6 @@ const WECHAT_PAY_SDK = "wechatpaySDK";
 const APPLE_PAY = "applepay";
 const AFTERPAY="afterpay_default";
 
-/**
- * @typedef AppServiceConfigData
- * @property {("test"|"live")} environment
- * @property {String} base_url
- * @property {Object} [additional_http_headers]
- */
-
- /**
-  * @typedef Options
-  * @property {Boolean} [showFailureAlert]
-  */
-
 export default {
     DROPIN,
     IDEAL,
@@ -44,13 +32,8 @@ export default {
     WECHAT_PAY_SDK,
     APPLE_PAY,
     AFTERPAY,
-    /**
-     * Initialize Adyen payment module
-     * @param {AppServiceConfigData} appServiceConfigData 
-     * @param {Options} [options] 
-     */
-    initialize(appServiceConfigData, options){
-        return AdyenPayment.initialize(appServiceConfigData, options);
+    initialize(appServiceConfigData){
+        return AdyenPayment.initialize(appServiceConfigData);
     },
     startPaymentPromise(component,componentData,paymentDetails){
         const default_components = [DROPIN,IDEAL,MOLPAY_MALAYSIA,MOLPAY_THAILAND,MOLPAY_VIETNAM,DOTPAY,

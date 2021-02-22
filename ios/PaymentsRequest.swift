@@ -83,7 +83,9 @@ internal struct PaymentsResponse: Response {
     internal let type:String?
     internal let errorMessage:String?
     internal var error_code:String?
+    internal let message:String?
     internal var validationError : ValidationError?
+    internal var customError : CustomError?
 
     internal struct ValidationError : Error {
         let type : String?
@@ -93,6 +95,15 @@ internal struct PaymentsResponse: Response {
             self.type = type
             self.errorCode = errorCode
             self.errorMessage = errorMessage
+        }
+    }
+    
+    internal struct CustomError : Error {
+        let errorCode: String?
+        let message: String?
+        init(errorCode: String?=nil, message: String?=nil) {
+            self.errorCode = errorCode
+            self.message = message
         }
     }
     
@@ -108,9 +119,13 @@ internal struct PaymentsResponse: Response {
         self.type = try container.decodeIfPresent(String.self, forKey: .type)
         self.errorCode = try container.decodeIfPresent(String.self, forKey: .errorCode)
         self.errorMessage = try container.decodeIfPresent(String.self, forKey: .errorMessage)
+        self.message = try container.decode(String.self, forKey: .message)
         self.error_code = self.decode_error_code(self.refusalReasonCode)
         if(self.type != nil){
             self.validationError = ValidationError(type:self.type,errorCode:self.errorCode,errorMessage:self.errorMessage)
+        }
+        if (self.type == nil && self.errorCode != nil && self.message != nil){
+            self.customError = CustomError(errorCode: self.errorCode, message: self.message)
         }
     }
     
@@ -168,6 +183,7 @@ internal struct PaymentsResponse: Response {
         case type
         case errorMessage
         case errorCode
+        case message
     }
     
 }

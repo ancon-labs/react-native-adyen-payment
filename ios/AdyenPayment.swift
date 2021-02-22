@@ -369,6 +369,13 @@ class AdyenPayment: RCTEventEmitter {
                             (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true) {}
                         }   
                     }
+                }else if(response.customError != nil){
+                    currentComponent?.stopLoading(withSuccess: false) { [weak self] in
+                        let errCode = response.customError?.errorCode ?? ""
+                        let errMessage = response.customError?.message ?? ""
+                        self?.sendFailure(code: errCode, message: errMessage)
+                        (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true)
+                    }
                 }
             }
         case let .failure(error):

@@ -67,8 +67,8 @@ function AdyenExample() {
       console.log('success', payload);
       setStatus(STATUS.success);
     });
-    AdyenPayment.onError((payload) => {
-      console.log('failure', payload);
+    AdyenPayment.onError((code, message) => {
+      console.log('failure', {code, message});
       setStatus(STATUS.failure);
     });
   }, []);

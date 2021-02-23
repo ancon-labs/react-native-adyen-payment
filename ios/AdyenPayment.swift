@@ -1,5 +1,6 @@
 import Foundation
 import Adyen
+import Adyen3DS2
 import PassKit
 
 
@@ -444,10 +445,20 @@ class AdyenPayment: RCTEventEmitter {
         
     }
     
+    private func isCancelError(_ error: Error) -> Bool {
+        let componentError = error as? ComponentError
+        if (componentError != nil) {
+            return componentError == ComponentError.cancelled
+        }
+        
+        let errorCode = (error as NSError).code
+        return errorCode == ADYRuntimeErrorCode.challengeCancelled.rawValue
+    }
+    
     func finish(with error: Error) {
-        let isCancelled = ((error as? ComponentError) == .cancelled)
+        let isCancelled = isCancelError(error)
         if !isCancelled {
-            self.sendFailure(code : "ERROR_GENERAL",message: "Payment has error")
+            self.sendFailure(code : "ERROR_GENERAL",message: error.localizedDescription)
         }else{
             self.sendFailure(code : "ERROR_CANCELLED",message: "Transaction Cancelled")
         }

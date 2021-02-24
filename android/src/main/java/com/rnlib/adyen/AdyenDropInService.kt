@@ -28,6 +28,7 @@ import com.rnlib.adyen.PaymentData
 import com.rnlib.adyen.AdditionalData
 import com.rnlib.adyen.AppServiceConfigData
 import com.rnlib.adyen.AdyenPaymentModule
+import org.json.JSONException
 import java.net.URL
 
 /**
@@ -142,7 +143,11 @@ class AdyenDropInService : DropInService() {
                 val errObj = JSONObject()
                 errObj.put("resultType","ERROR")
 
-                val errBodyObj = if (errorBodyStr != null) JSONObject(errorBodyStr) else null
+                var errBodyObj: JSONObject? = try {
+                    JSONObject(errorBodyStr)
+                } catch (err: JSONException) {
+                    null
+                }
                 if (errBodyObj != null) {
                     if (errBodyObj.has("errorCode")) {
                         errObj.put("code", errBodyObj.getString("errorCode"))

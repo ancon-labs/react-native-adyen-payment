@@ -124,7 +124,7 @@ public extension AdyenScope where Base: URLSession {
             let httpResponse = response as? HTTPURLResponse
             
             if (httpResponse != nil && httpResponse?.statusCode == 500) {
-                let httpError = ServerError(title: "Server error", description: "Server error", code: 500)
+                let httpError = ServerError(title: "Internal Server Error", description: "Internal Server Error", code: 500)
                 completion(.failure(httpError))
             } else if let error = error {
                 completion(.failure(error))

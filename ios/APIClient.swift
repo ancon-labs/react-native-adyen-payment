@@ -97,3 +97,42 @@ private func printAsJSON(_ data: Data) {
         }
     }
 }
+
+protocol ServerErrorProtocol: LocalizedError {
+    var title: String? { get }
+    var code: Int { get }
+}
+
+struct ServerError: ServerErrorProtocol {
+    var title: String?
+    var code: Int
+    var errorDescription: String? { return description  }
+    var failureReason: String? { return description  }
+    
+    private var description: String
+    
+    init(title: String?, description: String, code: Int) {
+        self.title = title ?? "Unknown server error"
+        self.description = description
+        self.code = code
+    }
+}
+
+public extension AdyenScope where Base: URLSession {
+    func dataTask(with urlRequest: URLRequest, completion: @escaping ((Result<Data, Error>) -> Void)) -> URLSessionDataTask {
+        return base.dataTask(with: urlRequest, completionHandler: { data, response, error in
+            let httpResponse = response as? HTTPURLResponse
+            
+            if (httpResponse != nil && httpResponse?.statusCode == 500) {
+                let httpError = ServerError(title: "Server error", description: "Server error", code: 500)
+                completion(.failure(httpError))
+            } else if let error = error {
+                completion(.failure(error))
+            } else if let data = data {
+                completion(.success(data))
+            } else {
+                fatalError("Invalid response.")
+            }
+        })
+    }
+}

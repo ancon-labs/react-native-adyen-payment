@@ -380,9 +380,10 @@ class AdyenPayment: RCTEventEmitter {
                 }
             }
         case let .failure(error):
-            sendFailure(code: "ERROR_GENERAL", message: error.localizedDescription)
             currentComponent?.stopLoading(withSuccess: false) {
-                (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true)
+                (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true) { [weak self] in
+                    self?.sendFailure(code: "ERROR_GENERAL", message: error.localizedDescription)
+                }
             }
         }
     }

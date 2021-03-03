@@ -101,10 +101,10 @@ class AdyenPayment: RCTEventEmitter {
         DispatchQueue.main.async {
             if(self.storedPaymentMethod(ofType: StoredCardPaymentMethod.self) != nil){
                 let configuration = DropInComponent.PaymentMethodsConfiguration()
-                configuration.card.publicKey = cardComponent["card_public_key"] as? String
+                configuration.clientKey = componentData["clientKey"] as? String
                 self.showDropInComponent(configuration: configuration)
             }else{
-                let component = CardComponent(paymentMethod: paymentMethod, publicKey:(cardComponent["card_public_key"] as! String))
+                let component = CardComponent(paymentMethod: paymentMethod, clientKey: componentData["clientKey"] as! String)
                 self.present(component)
             }
         }
@@ -125,7 +125,7 @@ class AdyenPayment: RCTEventEmitter {
                guard let paymentMethod = self.paymentMethods?.paymentMethod(ofType: BCMCPaymentMethod.self) else { return }
             let bcmcComponent : [String:Any] = componentData["bcmc"] as? [String:Any] ?? [:]
             if(!bcmcComponent.isEmpty){
-                let component = BCMCComponent(paymentMethod: paymentMethod, publicKey: bcmcComponent["card_public_key"] as! String)
+                let component = BCMCComponent(paymentMethod: paymentMethod, clientKey: componentData["clientKey"] as! String)
                     component.delegate = self
                     self.present(component)
                 }
@@ -150,7 +150,10 @@ class AdyenPayment: RCTEventEmitter {
             do{
                 let amt = NSDecimalNumber(string: String(format: "%.2f", Float(PaymentsData.amount.value) / 100))
                 let applePaySummaryItems = [PKPaymentSummaryItem(label: "Total", amount: amt, type: .final)]
-                let component = try ApplePayComponent(paymentMethod: paymentMethod,payment:Payment(amount: PaymentsData.amount, countryCode: PaymentsData.countryCode),merchantIdentifier: appleComponent["apple_pay_merchant_id"] as! String,summaryItems: applePaySummaryItems)
+                let payment = Payment(amount: PaymentsData.amount, countryCode: PaymentsData.countryCode)
+                let configuration = ApplePayComponent.Configuration(summaryItems: applePaySummaryItems, merchantIdentifier: appleComponent["apple_pay_merchant_id"] as! String)
+//                let component = try ApplePayComponent(paymentMethod: paymentMethod,payment:Payment(amount: PaymentsData.amount, countryCode: PaymentsData.countryCode),merchantIdentifier: appleComponent["apple_pay_merchant_id"] as! String,summaryItems: applePaySummaryItems)
+                let component = try ApplePayComponent(paymentMethod: paymentMethod, payment: payment, configuration: configuration)
                 component.delegate = self
                 self.present(component)
             }catch let appleError as ApplePayComponent.Error{
@@ -266,16 +269,12 @@ class AdyenPayment: RCTEventEmitter {
     
     func showDropInComponent(_ componentData : NSDictionary) throws{
         let configuration = DropInComponent.PaymentMethodsConfiguration()
+        configuration.clientKey = componentData["clientKey"] as? String
         let appleComponent : [String:Any] = componentData["applepay"] as? [String:Any] ?? [:]
         let cardComponent : [String:Any] = componentData["scheme"] as? [String:Any] ?? [:]
         if(!cardComponent.isEmpty){
-            configuration.card.publicKey = cardComponent["card_public_key"] as? String
             configuration.card.showsHolderNameField = cardComponent["showsHolderNameField"] as? Bool ?? false
             configuration.card.showsStorePaymentMethodField = cardComponent["showsStorePaymentMethodField"] as? Bool ?? false
-        }
-        let bcmcComponent : [String:Any] = componentData["bcmc"] as? [String:Any] ?? [:]
-        if(!bcmcComponent.isEmpty){
-            configuration.card.publicKey = bcmcComponent["card_public_key"] as? String
         }
         if(!appleComponent.isEmpty){
             configuration.applePay.merchantIdentifier = appleComponent["apple_pay_merchant_id"] as? String
@@ -347,7 +346,7 @@ class AdyenPayment: RCTEventEmitter {
     }
     
     func performPaymentDetails(with data: ActionComponentData) {
-        let request = PaymentDetailsRequest(details: data.details, paymentData: data.paymentData)
+        let request = PaymentDetailsRequest(details: data.details, paymentData: data.paymentData!)
         apiClient.perform(request, completionHandler: paymentResponseHandler)
     }
     

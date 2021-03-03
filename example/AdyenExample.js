@@ -3,7 +3,7 @@ import {Platform, View, Button, Text} from 'react-native';
 import AdyenPayment from 'react-native-adyen-payment';
 import {
   ADYEN_MERCHANT_ACCOUNT,
-  ADYEN_PUBLIC_KEY,
+  ADYEN_CLIENT_KEY,
   ADYEN_BASE_URL,
   ADYEN_ENVIRONMENT,
 } from '@env';
@@ -30,9 +30,7 @@ const MOCK_PAYMENT_DETAILS = {
 };
 
 const MOCK_COMPONENT_DATA = {
-  scheme: {
-    card_public_key: ADYEN_PUBLIC_KEY,
-  },
+  clientKey: ADYEN_CLIENT_KEY,
   // Uncomment to add Apple Pay (replace apple_pay_merchant_id):
   // applepay: {
   //   apple_pay_merchant_id: 'merchant.com.adyen.your.merchant',

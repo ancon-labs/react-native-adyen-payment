@@ -27,7 +27,7 @@ open abstract class BaseComponentDialogFragment : DropInBottomSheetDialogFragmen
     }
 
     lateinit var paymentMethod: PaymentMethod
-    lateinit var component: PaymentComponent<PaymentComponentState<in PaymentMethodDetails>>
+    lateinit var component: PaymentComponent<PaymentComponentState<in PaymentMethodDetails>, AdyenComponentConfiguration>
     lateinit var adyenComponentConfiguration: AdyenComponentConfiguration
 
     open class BaseCompanion<T : BaseComponentDialogFragment>(private var classes: Class<T>) {
@@ -39,11 +39,11 @@ open abstract class BaseComponentDialogFragment : DropInBottomSheetDialogFragmen
         }
 
         fun newInstance(
-            paymentMethod: PaymentMethod,
-            adyenComponentConfiguration: AdyenComponentConfiguration,
-            wasInExpandStatus: Boolean
+                paymentMethod: PaymentMethod,
+                adyenComponentConfiguration: AdyenComponentConfiguration,
+                wasInExpandStatus: Boolean
         ): T {
-            var args = Bundle()
+            val args = Bundle()
             args.putParcelable(PAYMENT_METHOD, paymentMethod)
             args.putBoolean(WAS_IN_EXPAND_STATUS, wasInExpandStatus)
             args.putParcelable(DROP_IN_CONFIGURATION, adyenComponentConfiguration)
@@ -64,7 +64,7 @@ open abstract class BaseComponentDialogFragment : DropInBottomSheetDialogFragmen
         super.onCreate(savedInstanceState)
         paymentMethod = arguments?.getParcelable(BaseCompanion.PAYMENT_METHOD) ?: throw IllegalArgumentException("Payment method is null")
         adyenComponentConfiguration = arguments?.getParcelable(BaseCompanion.DROP_IN_CONFIGURATION)
-            ?: throw IllegalArgumentException("DropIn Configuration is null")
+                ?: throw IllegalArgumentException("DropIn Configuration is null")
 
         try {
             component = getComponentFor(this, paymentMethod, adyenComponentConfiguration)
@@ -87,7 +87,7 @@ open abstract class BaseComponentDialogFragment : DropInBottomSheetDialogFragmen
     }
 
     fun startPayment() {
-        val componentState = component.getState()
+        val componentState = component.state
         try {
             if (componentState != null) {
                 if (componentState.isValid) {

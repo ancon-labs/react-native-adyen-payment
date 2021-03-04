@@ -354,7 +354,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
     private fun showBCMCComponent(componentData : JSONObject){
         val context = getReactApplicationContext()
         val bcmcComponent : JSONObject = componentData.getJSONObject(PaymentMethodTypes.BCMC)
-        val bcmcConfiguration = BcmcConfiguration.Builder(context, bcmcComponent.getString("card_public_key")).build()
+        val bcmcConfiguration = BcmcConfiguration.Builder(context, bcmcComponent.getString("publicKey")).build()
         val configBuilder : AdyenComponentConfiguration.Builder = createConfigurationBuilder(context)
         configBuilder.addBcmcConfiguration(bcmcConfiguration)
         AdyenComponent.startPayment(context, paymentMethodsApiResponse, configBuilder.build())
@@ -409,6 +409,17 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
             AdyenComponent.startPayment(context, paymentMethodsApiResponse, configBuilder.build())
         }
     }
+
+    private fun getEnvironment(): Environment {
+        return when (configData.environment) {
+            "test" -> Environment.TEST
+            "live" -> Environment.EUROPE
+            "eu" -> Environment.EUROPE
+            "us" -> Environment.UNITED_STATES
+            "au" -> Environment.AUSTRALIA
+            else -> Environment.TEST
+        }
+    }
  
     private fun showDropInComponent(componentData : JSONObject) {
 
@@ -416,6 +427,10 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
         val context = getReactApplicationContext()
         val localeArr = paymentData.getString("shopperLocale").split("_")
         val shopperLocale = Locale(localeArr[0],localeArr[1])
+        val environment: Environment = getEnvironment()
+        val clientKey: String = componentData.getString("clientKey")
+        val cardComponentData : JSONObject = componentData.getJSONObject(PaymentMethodTypes.SCHEME)
+        val publicKey: String = cardComponentData.getString("publicKey")
 
         val googlePayConfigBuilder = GooglePayConfiguration.Builder(context,paymentData.getString("merchantAccount"))
         when (configData.environment) {
@@ -431,12 +446,14 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
         googlePayConfigBuilder.setCountryCode(paymentData.getString("countryCode"))
         val googlePayConfig = googlePayConfigBuilder.build()
 
-        val cardComponent : JSONObject = componentData.getJSONObject(PaymentMethodTypes.SCHEME)
-        val cardConfiguration = CardConfiguration.Builder(context, cardComponent.getString("card_public_key"))
+        val cardComponent : JSONObject? = componentData.optJSONObject(PaymentMethodTypes.SCHEME)
+        val cardConfiguration = CardConfiguration.Builder(shopperLocale, environment)
+                            .setPublicKey(publicKey)
+                            .setClientKey(clientKey)
                             .setShopperReference(paymentData.getString("shopperReference"))
                             .setShopperLocale(shopperLocale)
-                            .setHolderNameRequire(cardComponent.optBoolean("holderNameRequire"))
-                            .setShowStorePaymentField(cardComponent.optBoolean("showStorePaymentField"))
+                            .setHolderNameRequire(cardComponent?.optBoolean("holderNameRequire") ?: false)
+                            .setShowStorePaymentField(cardComponent?.optBoolean("showStorePaymentField") ?: false)
                             .build()
 
         val bcmcComponent : JSONObject = if(componentData.has(PaymentMethodTypes.BCMC))  componentData.getJSONObject(PaymentMethodTypes.BCMC) else JSONObject()

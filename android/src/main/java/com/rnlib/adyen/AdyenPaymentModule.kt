@@ -364,7 +364,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
     private fun showCardComponent(componentData : JSONObject){
         val context = getReactApplicationContext()
         val cardComponent : JSONObject = componentData.getJSONObject(PaymentMethodTypes.SCHEME)
-        val cardConfiguration = CardConfiguration.Builder(context, cardComponent.getString("card_public_key"))
+        val cardConfiguration = CardConfiguration.Builder(context, cardComponent.getString("publicKey"))
                             .setShopperReference(paymentData.getString("shopperReference"))
                             .build()
         val configBuilder : AdyenComponentConfiguration.Builder = createConfigurationBuilder(context)
@@ -459,7 +459,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
         val bcmcComponent : JSONObject = if(componentData.has(PaymentMethodTypes.BCMC))  componentData.getJSONObject(PaymentMethodTypes.BCMC) else JSONObject()
         var bcmcConfiguration : BcmcConfiguration? = null
         if(bcmcComponent.length() != 0){
-          bcmcConfiguration = BcmcConfiguration.Builder(context, bcmcComponent.getString("card_public_key"))
+          bcmcConfiguration = BcmcConfiguration.Builder(context, bcmcComponent.getString("publicKey"))
                                 .setShopperLocale(shopperLocale)
                                 .build()
         }

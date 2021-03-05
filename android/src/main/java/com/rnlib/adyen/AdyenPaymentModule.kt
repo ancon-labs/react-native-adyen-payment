@@ -159,6 +159,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
         configData.environment = appServiceConfigJSON.getString("environment")
         configData.base_url = appServiceConfigJSON.getString("base_url")
         configData.app_url_headers = headersMap
+        configData.clientKey = appServiceConfigJSON.getString("clientKey")
     }
     
     @ReactMethod

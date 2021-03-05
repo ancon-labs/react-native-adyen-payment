@@ -428,7 +428,6 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
         val localeArr = paymentData.getString("shopperLocale").split("_")
         val shopperLocale = Locale(localeArr[0],localeArr[1])
         val environment: Environment = getEnvironment()
-        val clientKey: String = componentData.getString("clientKey")
         val cardComponentData : JSONObject = componentData.getJSONObject(PaymentMethodTypes.SCHEME)
         val publicKey: String = cardComponentData.getString("publicKey")
 
@@ -449,7 +448,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
         val cardComponent : JSONObject? = componentData.optJSONObject(PaymentMethodTypes.SCHEME)
         val cardConfiguration = CardConfiguration.Builder(shopperLocale, environment)
                             .setPublicKey(publicKey)
-                            .setClientKey(clientKey)
+                            .setClientKey(configData.clientKey)
                             .setShopperReference(paymentData.getString("shopperReference"))
                             .setShopperLocale(shopperLocale)
                             .setHolderNameRequire(cardComponent?.optBoolean("holderNameRequire") ?: false)

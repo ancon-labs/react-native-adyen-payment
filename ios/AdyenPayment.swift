@@ -71,6 +71,7 @@ class AdyenPayment: RCTEventEmitter {
            AppServiceConfigData.app_url_headers = appServiceConfigData["additional_http_headers"] as! [String:String]
         }
         AppServiceConfigData.environment = appServiceConfigData["environment"] as! String
+        AppServiceConfigData.clientKey = appServiceConfigData["clientKey"] as! String
     }
     
     func storedPaymentMethod<T: StoredPaymentMethod>(ofType type: T.Type) -> T? {
@@ -96,15 +97,13 @@ class AdyenPayment: RCTEventEmitter {
     
     func showCardComponent(_ componentData : NSDictionary) throws {
         guard let paymentMethod = self.paymentMethods?.paymentMethod(ofType: CardPaymentMethod.self) else { return}
-        let cardComponent : [String:Any] = componentData["scheme"] as? [String:Any] ?? [:]
-        guard cardComponent["card_public_key"] != nil else {return}
         DispatchQueue.main.async {
             if(self.storedPaymentMethod(ofType: StoredCardPaymentMethod.self) != nil){
                 let configuration = DropInComponent.PaymentMethodsConfiguration()
-                configuration.clientKey = componentData["clientKey"] as? String
+                configuration.clientKey = AppServiceConfigData.clientKey
                 self.showDropInComponent(configuration: configuration)
             }else{
-                let component = CardComponent(paymentMethod: paymentMethod, clientKey: componentData["clientKey"] as! String)
+                let component = CardComponent(paymentMethod: paymentMethod, clientKey: AppServiceConfigData.clientKey)
                 self.present(component)
             }
         }
@@ -269,7 +268,7 @@ class AdyenPayment: RCTEventEmitter {
     
     func showDropInComponent(_ componentData : NSDictionary) throws{
         let configuration = DropInComponent.PaymentMethodsConfiguration()
-        configuration.clientKey = componentData["clientKey"] as? String
+        configuration.clientKey = AppServiceConfigData.clientKey
         let appleComponent : [String:Any] = componentData["applepay"] as? [String:Any] ?? [:]
         let cardComponent : [String:Any] = componentData["scheme"] as? [String:Any] ?? [:]
         if(!cardComponent.isEmpty){

@@ -19,8 +19,7 @@ import com.rnlib.adyen.R
 import com.rnlib.adyen.ui.AdyenComponentViewModel
 import com.rnlib.adyen.ui.base.BaseComponentDialogFragment
 import kotlinx.android.synthetic.main.frag_card_component.adyenCardView
-import kotlinx.android.synthetic.main.view_card_component.view.header
-import kotlinx.android.synthetic.main.view_card_component.view.payButton
+import kotlinx.android.synthetic.main.view_card_component.view.*
 
 class CardComponentDialogFragment : BaseComponentDialogFragment() {
 
@@ -29,7 +28,7 @@ class CardComponentDialogFragment : BaseComponentDialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.frag_card_component, container, false)
+        return inflater.inflate(R.layout.fragment_card_component, container, false)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +50,7 @@ class CardComponentDialogFragment : BaseComponentDialogFragment() {
             adyenCardView.payButton.text = String.format(resources.getString(R.string.pay_button_with_value), value)
         }
 
+        // Keeping generic component to use the observer from the BaseComponentDialogFragment
         component.observe(this, this)
         cardComponent.observeErrors(this, createErrorHandlerObserver())
 
@@ -60,27 +60,25 @@ class CardComponentDialogFragment : BaseComponentDialogFragment() {
             adyenCardView.header.text = dropInViewModel.paymentMethodsApiResponse.paymentMethods?.find { it.type == PaymentMethodTypes.SCHEME }?.name
         }
 
-        adyenCardView.attach(component as CardComponent, this)
+        adyenCardView.cardView.attach(cardComponent, this)
 
-        //adyenCardView.header.setText(R.string.credit_card)
-
-        if (adyenCardView.isConfirmationRequired) {
+        if (adyenCardView.cardView.isConfirmationRequired) {
             adyenCardView.payButton.setOnClickListener {
                 if (cardComponent.state?.isValid == true) {
                     startPayment()
                 } else {
-                    adyenCardView.highlightValidationErrors()
+                    adyenCardView.cardView.highlightValidationErrors()
                 }
             }
 
             setInitViewState(BottomSheetBehavior.STATE_EXPANDED)
-            adyenCardView.requestFocus()
+            adyenCardView.cardView.requestFocus()
         } else {
             adyenCardView.payButton.visibility = View.GONE
         }
     }
 
     override fun onChanged(paymentComponentState: PaymentComponentState<in PaymentMethodDetails>?) {
-        //adyenCardView.payButton.isEnabled = paymentComponentState != null && paymentComponentState.isValid()
+        // nothing, validation is already checked on focus change and button click
     }
 }

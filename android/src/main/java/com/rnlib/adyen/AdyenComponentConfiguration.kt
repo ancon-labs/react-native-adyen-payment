@@ -59,8 +59,9 @@ class AdyenComponentConfiguration : Configuration, Parcelable {
         availableConfigs: Map<String, Configuration>,
         serviceComponentName: ComponentName,
         resultHandlerIntent: Intent,
-        amount: Amount
-    ) : super(shopperLocale, environment) {
+        amount: Amount,
+        clientKey: String?
+    ) : super(shopperLocale, environment, clientKey) {
         this.availableConfigs = availableConfigs
         this.serviceComponentName = serviceComponentName
         this.resultHandlerIntent = resultHandlerIntent
@@ -87,7 +88,7 @@ class AdyenComponentConfiguration : Configuration, Parcelable {
         return ParcelUtils.NO_FILE_DESCRIPTOR
     }
 
-    fun <T : Configuration> getConfigurationFor(@PaymentMethodTypes.SupportedPaymentMethod paymentMethod: String, context: Context): T {
+    fun <T : Configuration> getConfigurationFor(paymentMethod: String, context: Context): T {
         return if (PaymentMethodTypes.SUPPORTED_PAYMENT_METHODS.contains(paymentMethod) && availableConfigs.containsKey(paymentMethod)) {
             @Suppress("UNCHECKED_CAST")
             availableConfigs[paymentMethod] as T
@@ -112,6 +113,7 @@ class AdyenComponentConfiguration : Configuration, Parcelable {
         private var resultHandlerIntent: Intent
         private var environment: Environment = Environment.EUROPE
         private var amount: Amount = Amount.EMPTY
+        private var clientKey: String = ""
 
         private val packageName: String
         private val serviceClassName: String
@@ -145,6 +147,7 @@ class AdyenComponentConfiguration : Configuration, Parcelable {
             this.environment = adyenComponentConfiguration.environment
             this.resultHandlerIntent = adyenComponentConfiguration.resultHandlerIntent
             this.amount = adyenComponentConfiguration.amount
+            this.clientKey = adyenComponentConfiguration.clientKey
         }
 
         fun setServiceComponentName(serviceComponentName: ComponentName): Builder {
@@ -297,7 +300,8 @@ class AdyenComponentConfiguration : Configuration, Parcelable {
                     availableConfigs,
                     serviceComponentName,
                     resultHandlerIntent,
-                    amount
+                    amount,
+                    clientKey
             )
         }
     }

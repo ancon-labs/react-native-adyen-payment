@@ -58,6 +58,8 @@ import com.adyen.checkout.wechatpay.WeChatPayConfiguration
 import com.adyen.checkout.afterpay.AfterPayComponent
 import com.adyen.checkout.afterpay.AfterPayConfiguration
 import com.adyen.checkout.afterpay.AfterPayView
+import com.adyen.checkout.base.*
+import com.adyen.checkout.base.component.OutputData
 
 class ComponentParsingProvider {
     companion object {
@@ -67,7 +69,6 @@ class ComponentParsingProvider {
 
 @Suppress("ComplexMethod")
 internal fun <T : Configuration> getDefaultConfigFor(
-    @PaymentMethodTypes.SupportedPaymentMethod
     paymentMethod: String,
     context: Context,
     adyenComponentConfiguration: AdyenComponentConfiguration
@@ -139,7 +140,7 @@ internal fun checkComponentAvailability(
 }
 
 @Suppress("ComplexMethod")
-internal fun getProviderForType(type: String): PaymentComponentProvider<PaymentComponent<*>, Configuration> {
+internal fun getProviderForType(type: String): PaymentComponentProvider<PaymentComponent<PaymentComponentState<in PaymentMethodDetails>, Configuration>, Configuration> {
     @Suppress("UNCHECKED_CAST")
     return when (type) {
         PaymentMethodTypes.IDEAL -> IdealComponent.PROVIDER 
@@ -159,7 +160,7 @@ internal fun getProviderForType(type: String): PaymentComponentProvider<PaymentC
         else -> {
             throw CheckoutException("Unable to find component for type - $type")
         }
-    } as PaymentComponentProvider<PaymentComponent<*>, Configuration>
+    } as PaymentComponentProvider<PaymentComponent<PaymentComponentState<in PaymentMethodDetails>, Configuration>, Configuration>
 }
 
 /**
@@ -174,7 +175,7 @@ internal fun getComponentFor(
     fragment: Fragment,
     paymentMethod: PaymentMethod,
     adyenComponentConfiguration: AdyenComponentConfiguration
-): PaymentComponent<PaymentComponentState<in PaymentMethodDetails>> {
+): PaymentComponent<PaymentComponentState<in PaymentMethodDetails>, AdyenComponentConfiguration> {
     val context = fragment.requireContext()
 
     val component = when (paymentMethod.type) {
@@ -239,7 +240,7 @@ internal fun getComponentFor(
         }
     }
     component.setCreatedForDropIn()
-    return component as PaymentComponent<PaymentComponentState<in PaymentMethodDetails>>
+    return component as PaymentComponent<PaymentComponentState<in PaymentMethodDetails>, AdyenComponentConfiguration>
 }
 
 /**
@@ -252,7 +253,7 @@ internal fun getComponentFor(
 internal fun getViewFor(
     context: Context,
     paymentMethod: PaymentMethod
-): ComponentView<PaymentComponent<PaymentComponentState<in PaymentMethodDetails>>> {
+): ComponentView<in OutputData, ViewableComponent<*, *, *>> {
     @Suppress("UNCHECKED_CAST")
     return when (paymentMethod.type) {
         PaymentMethodTypes.IDEAL -> IdealRecyclerView(context)
@@ -271,5 +272,5 @@ internal fun getViewFor(
         else -> {
             throw CheckoutException("Unable to find view for type - ${paymentMethod.type}")
         }
-    } as ComponentView<PaymentComponent<in PaymentComponentState<in PaymentMethodDetails>>>
+    } as ComponentView<in OutputData, ViewableComponent<*, *, *>>
 }

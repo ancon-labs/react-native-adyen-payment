@@ -7,6 +7,7 @@ internal struct AppServiceConfigData {
     static var card_public_key : String = ""
     static var applePayMerchantIdentifier : String = ""
     static var environment : String = "test"
+    static var clientKey : String = ""
 }
 
 internal final class APIClient {

@@ -1,13 +1,13 @@
 PODS:
-  - Adyen (3.6.0):
-    - Adyen/Card (= 3.6.0)
-    - Adyen/Core (= 3.6.0)
-    - Adyen/DropIn (= 3.6.0)
-  - Adyen/Card (3.6.0):
+  - Adyen (3.8.3):
+    - Adyen/Card (= 3.8.3)
+    - Adyen/Core (= 3.8.3)
+    - Adyen/DropIn (= 3.8.3)
+  - Adyen/Card (3.8.3):
     - Adyen/Core
-    - Adyen3DS2 (>= 2.1.0-rc.5)
-  - Adyen/Core (3.6.0)
-  - Adyen/DropIn (3.6.0):
+    - Adyen3DS2 (= 2.2.1)
+  - Adyen/Core (3.8.3)
+  - Adyen/DropIn (3.8.3):
     - Adyen/Card
     - Adyen/Core
   - Adyen3DS2 (2.2.1)
@@ -249,7 +249,7 @@ PODS:
     - React-jsi (= 0.63.4)
   - React-jsinspector (0.63.4)
   - react-native-adyen-payment (1.6.0):
-    - Adyen (= 3.6.0)
+    - Adyen (= 3.8.3)
     - React
   - React-RCTActionSheet (0.63.4):
     - React-Core/RCTActionSheetHeaders (= 0.63.4)
@@ -439,7 +439,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  Adyen: f2978d24fcfdb992d43c50de87a045bc6b26afa9
+  Adyen: 2fae545785245d852781e8a821cb83a46ecfe3f5
   Adyen3DS2: d99e5dea8524fc860751804dd760f6bad032de01
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
@@ -467,7 +467,7 @@ SPEC CHECKSUMS:
   React-jsi: a0418934cf48f25b485631deb27c64dc40fb4c31
   React-jsiexecutor: 93bd528844ad21dc07aab1c67cb10abae6df6949
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
-  react-native-adyen-payment: 46485c80821805941624deb839a175b27e3f870a
+  react-native-adyen-payment: c87815bbf5b3673edcec638748d583a2ed1f6318
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
   React-RCTAnimation: 1bde3ecc0c104c55df246eda516e0deb03c4e49b
   React-RCTBlob: a97d378b527740cc667e03ebfa183a75231ab0f0
@@ -483,4 +483,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 311cf87a4a33d759b7ec994ec3735e03d4ededbf
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.10.1

@@ -31,7 +31,6 @@ const MOCK_PAYMENT_DETAILS = {
 };
 
 const MOCK_COMPONENT_DATA = {
-  clientKey: ADYEN_CLIENT_KEY,
   scheme: {
     publicKey: ADYEN_CARD_PUBLIC_KEY,
   },
@@ -44,6 +43,7 @@ const MOCK_COMPONENT_DATA = {
 };
 
 const APP_SERVICE_CONFIG_DATA = {
+  clientKey: ADYEN_CLIENT_KEY,
   environment: ADYEN_ENVIRONMENT,
   base_url: ADYEN_BASE_URL,
   // Add any additional headers to pass to your backend

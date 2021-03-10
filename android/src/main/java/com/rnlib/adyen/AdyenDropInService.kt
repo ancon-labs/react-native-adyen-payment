@@ -155,6 +155,9 @@ class AdyenDropInService : DropInService() {
                     if (errBodyObj.has("message")) {
                         errObj.put("message", errBodyObj.getString("message"))
                     }
+                    if (errBodyObj.has("additionalData") && errBodyObj.optJSONObject("additionalData") != null) {
+                        errObj.put("additionalData", errBodyObj.getJSONObject("additionalData"))
+                    }
                 } else {
                     errObj.put("code","ERROR_GENERAL")
                     errObj.put("message",response.message().toString())

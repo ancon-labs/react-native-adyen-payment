@@ -131,7 +131,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
         }
     }
     
-    fun sendFailure(code : String,message : String){
+    fun sendFailure(code : String,message : String,additionalData: JSONObject?=null){
         if(promise != null){
             promise!!.reject(code, message)
             //this.promise = null
@@ -141,6 +141,9 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
             val evtObj : JSONObject = JSONObject()
             evtObj.put("code",code)
             evtObj.put("message",message)
+            if (additionalData != null) {
+                evtObj.put("additionalData",additionalData)
+            }
             emitDeviceEvent("onError",ReactNativeUtils.convertJsonToMap(evtObj))
         }
     }
@@ -609,7 +612,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
                 sendFailure("ERROR_UNKNOWN","Unknown Error")
             }
         }else if (resultType=="ERROR"){
-            sendFailure(response.get("code").toString(),response.get("message").toString())
+            sendFailure(response.get("code").toString(),response.get("message").toString(),response.optJSONObject("additionalData"))
         }else if(resultType=="ERROR_VALIDATION"){
             Toast.makeText(getReactApplicationContext(), response.get("message").toString(), Toast.LENGTH_SHORT).show()
         }else{

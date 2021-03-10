@@ -101,9 +101,11 @@ internal struct PaymentsResponse: Response {
     internal struct CustomError : Error {
         let errorCode: String?
         let message: String?
-        init(errorCode: String?=nil, message: String?=nil) {
+        let additionalData: [String:Any]?
+        init(errorCode: String?=nil, message: String?=nil, additionalData: [String:Any]?=nil) {
             self.errorCode = errorCode
             self.message = message
+            self.additionalData = additionalData
         }
     }
     
@@ -125,7 +127,7 @@ internal struct PaymentsResponse: Response {
             self.validationError = ValidationError(type:self.type,errorCode:self.errorCode,errorMessage:self.errorMessage)
         }
         if (self.type == nil && self.errorCode != nil && self.message != nil){
-            self.customError = CustomError(errorCode: self.errorCode, message: self.message)
+            self.customError = CustomError(errorCode: self.errorCode, message: self.message, additionalData: self.additionalData)
         }
     }
     

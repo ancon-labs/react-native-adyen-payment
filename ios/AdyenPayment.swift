@@ -234,12 +234,12 @@ class AdyenPayment: RCTEventEmitter {
         }
     }
     
-    func sendFailure(code : String,message : String){
+    func sendFailure(code : String,message : String, additionalData: [String:Any]?=nil){
         if(self.reject != nil){
             self.reject!(code, message,nil)
         }
         if(self.emitEvent){
-            self.sendEvent(withName: "onError",body: ["code": code, "message": message])
+            self.sendEvent(withName: "onError",body: ["code": code, "message": message, "additionalData": additionalData as Any])
         }
     }
     
@@ -372,7 +372,8 @@ class AdyenPayment: RCTEventEmitter {
                     currentComponent?.stopLoading(withSuccess: false) { [weak self] in
                         let errCode = response.customError?.errorCode ?? ""
                         let errMessage = response.customError?.message ?? ""
-                        self?.sendFailure(code: errCode, message: errMessage)
+                        let additionalData = response.customError?.additionalData
+                        self?.sendFailure(code: errCode, message: errMessage, additionalData: additionalData)
                         (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true)
                     }
                 }

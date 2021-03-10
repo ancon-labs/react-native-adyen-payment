@@ -99,7 +99,7 @@ export default {
           onAdyenPaymentErrorListener.remove();
         }
         onAdyenPaymentErrorListener = events.addListener('onError', (response) => {
-            mOnError(response['code'], response['message']);
+            mOnError(response['code'], response['message'], response['additionalData']);
         });
     },
     /**

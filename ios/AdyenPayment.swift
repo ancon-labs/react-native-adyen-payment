@@ -364,8 +364,9 @@ class AdyenPayment: RCTEventEmitter {
                             self?.presentAlert(withTitle:"Error",message:validationError.errorMessage)
                         }else{
                             let errMsg = (validationError.errorCode ?? "") + " : " + (validationError.errorMessage ?? "")
+                            (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true) {
                                 self?.sendFailure(code : "ERROR_PAYMENT_DETAILS",message: errMsg)
-                            (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true) {}
+                            }
                         }   
                     }
                 }else if(response.customError != nil){
@@ -373,8 +374,9 @@ class AdyenPayment: RCTEventEmitter {
                         let errCode = response.customError?.errorCode ?? ""
                         let errMessage = response.customError?.message ?? ""
                         let additionalData = response.customError?.additionalData
-                        self?.sendFailure(code: errCode, message: errMessage, additionalData: additionalData)
-                        (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true)
+                        (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true) {
+                            self?.sendFailure(code: errCode, message: errMessage, additionalData: additionalData)
+                        }
                     }
                 }
             }
@@ -425,21 +427,24 @@ class AdyenPayment: RCTEventEmitter {
     
     func finish(with response: PaymentsResponse) {
         let resultCode : PaymentsResponse.ResultCode = response.resultCode!
-        if(resultCode == .authorised || resultCode == .received || resultCode == .pending){
-            let additionalData : NSDictionary = (response.additionalData != nil) ? NSMutableDictionary(dictionary:response.additionalData!) : NSDictionary()
-            print(response)
-            let msg:Dictionary? = ["resultCode" : resultCode.rawValue,"merchantReference":response.merchantReference!,"pspReference" : response.pspReference!,"additionalData" : additionalData]
-            self.sendSuccess(message:msg)
-        }else if(resultCode == .refused || resultCode == .error){
-            self.sendFailure(code : response.error_code ?? "",message: response.refusalReason ?? "")
-        }else if (resultCode == .cancelled){
-            self.sendFailure(code : "ERROR_CANCELLED",message: "Transaction Cancelled")
-        }else{
-            self.sendFailure(code : "ERROR_UNKNOWN",message: "Unknown Error")
+
+        currentComponent?.stopLoading(withSuccess: true) { [weak self] in
+            (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true) {
+                if(resultCode == .authorised || resultCode == .received || resultCode == .pending){
+                    let additionalData : NSDictionary = (response.additionalData != nil) ? NSMutableDictionary(dictionary:response.additionalData!) : NSDictionary()
+                    print(response)
+                    let msg:Dictionary? = ["resultCode" : resultCode.rawValue,"merchantReference":response.merchantReference!,"pspReference" : response.pspReference!,"additionalData" : additionalData]
+                    self?.sendSuccess(message:msg)
+                }else if(resultCode == .refused || resultCode == .error){
+                    self?.sendFailure(code : response.error_code ?? "",message: response.refusalReason ?? "")
+                }else if (resultCode == .cancelled){
+                    self?.sendFailure(code : "ERROR_CANCELLED",message: "Transaction Cancelled")
+                }else{
+                    self?.sendFailure(code : "ERROR_UNKNOWN",message: "Unknown Error")
+                }
+            }
         }
-        currentComponent?.stopLoading(withSuccess: true) { [] in
-            (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true) {}
-        }
+
         redirectComponent = nil
         threeDS2Component = nil
         
@@ -457,21 +462,23 @@ class AdyenPayment: RCTEventEmitter {
     
     func finish(with error: Error) {
         let isCancelled = isCancelError(error)
-        if !isCancelled {
-            self.sendFailure(code : "ERROR_GENERAL",message: error.localizedDescription)
-        }else{
-            self.sendFailure(code : "ERROR_CANCELLED",message: "Transaction Cancelled")
-        }
         redirectComponent = nil
         threeDS2Component = nil
-        (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true) {}
+        (UIApplication.shared.delegate?.window??.rootViewController)!.dismiss(animated: true) {
+            if !isCancelled {
+                self.sendFailure(code : "ERROR_GENERAL",message: error.localizedDescription)
+            }else{
+                self.sendFailure(code : "ERROR_CANCELLED",message: "Transaction Cancelled")
+            }
+        }
     }
     
     private func presentAlert(with error: Error, retryHandler: (() -> Void)? = nil) {
         let alertController = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        currentComponent?.viewController.dismiss(animated: true, completion: nil)
-        (UIApplication.shared.delegate?.window??.rootViewController)!.present(alertController, animated: true)
+        currentComponent?.viewController.dismiss(animated: true, completion: {
+            (UIApplication.shared.delegate?.window??.rootViewController)!.present(alertController, animated: true)
+        })
     }
     
     private func presentAlert(withTitle title: String,message:String?=nil) {
